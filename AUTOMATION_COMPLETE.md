@@ -323,7 +323,7 @@ fi
 ### File Locations
 
 ```
-/opt/mace_python/                    # Python 3.11.10 installation
+$HOME/mace_python/                    # Python 3.11.10 installation
 ├── bin/
 │   ├── python3                      # Python interpreter
 │   └── pip3                         # Package manager
@@ -363,15 +363,15 @@ After installation, verify everything works:
 
 ```bash
 # 1. Check Python
-/opt/mace_python/bin/python3 --version
+$HOME/mace_python/bin/python3 --version
 # Python 3.11.10
 
 # 2. Check packages
-/opt/mace_python/bin/python3 -c "import torch; import mace; print('OK')"
+$HOME/mace_python/bin/python3 -c "import torch; import mace; print('OK')"
 # OK
 
 # 3. Check GPU (if available)
-/opt/mace_python/bin/python3 -c "import torch; print(torch.cuda.is_available())"
+$HOME/mace_python/bin/python3 -c "import torch; print(torch.cuda.is_available())"
 # True (on native Linux with GPU)
 
 # 4. Check wrapper library
@@ -492,7 +492,7 @@ Before deploying to production, verify:
 
 ### General
 1. **Python version:** Hardcoded to 3.11.10 (can be changed in script)
-2. **Install location:** `/opt/mace_python` (requires sudo)
+2. **Install location:** `$HOME/mace_python` (requires sudo)
 3. **CUDA version:** Auto-detects, defaults to cu121
 
 ### WSL2-Specific
@@ -512,7 +512,7 @@ Before deploying to production, verify:
 
 Edit all scripts and change:
 ```bash
-PYTHON_INSTALL_DIR="/opt/mace_python"
+PYTHON_INSTALL_DIR="$HOME/mace_python"
 # to
 PYTHON_INSTALL_DIR="/custom/path"
 ```
@@ -566,7 +566,7 @@ run_test "Your custom test" \
 Installation is successful when:
 
 ✅ All scripts execute without errors
-✅ Python 3.11.10 installed at `/opt/mace_python`
+✅ Python 3.11.10 installed at `$HOME/mace_python`
 ✅ All packages import: torch, mace, cuequivariance, pybind11
 ✅ Wrapper library builds: `libmace_wrapper.so`
 ✅ Test suite passes: 22/22 tests

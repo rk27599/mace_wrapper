@@ -23,7 +23,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 # Configuration
-PYTHON_INSTALL_DIR="/opt/mace_python"
+PYTHON_INSTALL_DIR="$HOME/mace_python"
 WRAPPER_DIR="$HOME/mace_wrapper"
 
 # Output functions

@@ -10,7 +10,7 @@
 
 | Goal | Status | Notes |
 |------|--------|-------|
-| Build isolated Python 3.11 environment | ✅ COMPLETE | /opt/mace_python (~500MB) |
+| Build isolated Python 3.11 environment | ✅ COMPLETE | $HOME/mace_python (~500MB) |
 | Install MACE stack (PyTorch, MACE, cuEq) | ✅ COMPLETE | All packages installed (~3.5GB) |
 | Create C++ wrapper library | ✅ COMPLETE | Shared library with clean C API |
 | Get `make test` working | ✅ COMPLETE | H2O molecule test passes |
@@ -72,7 +72,7 @@
 │   └── libmace_wrapper.so          # Shared library (206KB)
 └── Makefile                         # Build system
 
-/opt/mace_python/                    # Isolated Python 3.11.10
+$HOME/mace_python/                    # Isolated Python 3.11.10
 ├── bin/python3                      # Python interpreter
 ├── lib/libpython3.11.so.1.0         # Python shared library (23MB)
 └── lib/python3.11/site-packages/    # MACE stack
@@ -104,7 +104,7 @@
 **Solution in mace_wrapper.cpp:**
 ```cpp
 // CRITICAL: Set PYTHONHOME before creating interpreter
-setenv("PYTHONHOME", "/opt/mace_python", 1);
+setenv("PYTHONHOME", "$HOME/mace_python", 1);
 g_interpreter = new py::scoped_interpreter();
 ```
 
@@ -132,7 +132,7 @@ except pynvml.NVMLError_NotSupported:
 ```
 
 **Files:**
-- Patched: `/opt/mace_python/lib/python3.11/site-packages/cuequivariance_ops/triton/cache_manager.py`
+- Patched: `$HOME/mace_python/lib/python3.11/site-packages/cuequivariance_ops/triton/cache_manager.py`
 - Backup: `cache_manager.py.backup`
 
 **Impact:** Enables cuEquivariance to import in WSL2
@@ -211,7 +211,7 @@ MACEHandle mace = mace_init(NULL, "medium", "cuda", 1);
 ```
 
 **Deployment steps:**
-1. Copy entire `/opt/mace_python` directory to target machine
+1. Copy entire `$HOME/mace_python` directory to target machine
 2. Copy `~/mace_wrapper` directory to target machine
 3. Copy patched `cache_manager.py` (patch is safe on native Linux)
 4. Build: `cd ~/mace_wrapper && make clean && make`
@@ -273,7 +273,7 @@ MACEHandle mace = mace_init(NULL, "medium", "cuda", 1);
 - Downloaded Python 3.11.10 source
 - Configured with optimizations (`--enable-optimizations`)
 - Built with parallel make (`make -j8`)
-- Installed to `/opt/mace_python`
+- Installed to `$HOME/mace_python`
 - Verified: 500MB installation size
 
 ### Phase 1.3: Install MACE Stack (20 minutes)

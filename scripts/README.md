@@ -38,7 +38,7 @@ Analyzes system capabilities and checks for required dependencies.
 **Example output:**
 ```
 === Operating System ===
-✓ OS: Ubuntu 22.04.5 LTS
+✓ OS: Ubuntu 22.04.5 LTS / RHEL 8.x / Rocky Linux 8.x
 ✓ Native Linux detected - full GPU acceleration available
 
 === GPU Information ===
@@ -61,14 +61,14 @@ Automated installation of entire MACE wrapper stack.
 ```bash
 ./install_mace_wrapper.sh                    # Full installation
 ./install_mace_wrapper.sh --skip-python      # Skip Python if already installed
-./install_mace_wrapper.sh --skip-deps        # Skip apt dependencies
+./install_mace_wrapper.sh --skip-deps        # Skip system dependencies
 ./install_mace_wrapper.sh --cpu-only         # CPU mode only (no CUDA)
 ```
 
 **What it does:**
 1. Installs system dependencies (12 packages)
 2. Downloads and builds Python 3.11.10 from source
-3. Installs to `/opt/mace_python` (~500MB)
+3. Installs to `$HOME/mace_python` (~500MB)
 4. Upgrades pip, setuptools, wheel
 5. Installs PyTorch with CUDA support (~780MB)
 6. Installs MACE 0.3.14 with dependencies
@@ -95,14 +95,15 @@ Automated installation of entire MACE wrapper stack.
 # Run environment detection first
 ./detect_env.sh
 
-# Install missing dependencies if needed
-sudo apt-get install ...
+# Install missing dependencies if needed (output from detect_env.sh)
+# Ubuntu/Debian: sudo apt-get install ...
+# RHEL/Rocky: sudo dnf install ...
 
 # Run full installation
 ./install_mace_wrapper.sh
 
 # Result:
-#   Python:   /opt/mace_python
+#   Python:   $HOME/mace_python
 #   Wrapper:  ~/mace_wrapper
 #   Library:  ~/mace_wrapper/lib/libmace_wrapper.so
 ```
@@ -236,7 +237,7 @@ Sets up environment and runs applications using MACE wrapper.
 # MACE Wrapper Runtime Environment
 # =================================
 # Python Installation:
-#   Location: /opt/mace_python
+#   Location: $HOME/mace_python
 #   Version:  Python 3.11.10
 # Wrapper Library:
 #   Location: /home/user/mace_wrapper
@@ -262,8 +263,11 @@ chmod +x *.sh
 ./detect_env.sh
 
 # 2. Install missing dependencies (if any)
+# Ubuntu/Debian:
 sudo apt-get update && sudo apt-get install -y \
     build-essential libncurses5-dev ... (see detect_env.sh output)
+# RHEL/Rocky/AlmaLinux:
+sudo dnf install -y gcc gcc-c++ make ncurses-devel ... (see detect_env.sh output)
 
 # 3. Run full installation
 ./install_mace_wrapper.sh
@@ -295,13 +299,13 @@ cd mace_wrapper_*
 
 # Copy Python installation
 sudo cp -r mace_python /opt/
-sudo chown -R $USER:$USER /opt/mace_python
+sudo chown -R $USER:$USER $HOME/mace_python
 
 # Copy wrapper library
 cp -r mace_wrapper ~/
 
 # Test
-export LD_LIBRARY_PATH=/opt/mace_python/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$HOME/mace_python/lib:$LD_LIBRARY_PATH
 export PYTHONPATH=~/mace_wrapper/python:$PYTHONPATH
 cd ~/mace_wrapper
 make test
@@ -312,14 +316,14 @@ make test
 ## System Requirements
 
 ### Minimum Requirements
-- **OS:** Ubuntu 20.04+ (or compatible Linux)
+- **OS:** Ubuntu 20.04+ / RHEL 8+ / Rocky Linux 8+ (or compatible Linux)
 - **CPU:** Any modern x86_64 processor
 - **RAM:** 8GB
 - **Disk:** 15GB free space
 - **Build tools:** GCC 7+, Make 4+
 
 ### Recommended Requirements
-- **OS:** Ubuntu 22.04 LTS (native, not WSL2)
+- **OS:** Ubuntu 22.04 LTS / RHEL 8+ / Rocky Linux 8+ (native, not WSL2)
 - **CPU:** 8+ cores for faster builds
 - **RAM:** 16GB+
 - **Disk:** 50GB free space
@@ -400,14 +404,14 @@ cat /tmp/mace_test_*.log
 
 **Verify installation:**
 ```bash
-ls -lh /opt/mace_python/bin/python3
+ls -lh $HOME/mace_python/bin/python3
 ls -lh ~/mace_wrapper/lib/libmace_wrapper.so
 ```
 
 **Test Python imports:**
 ```bash
-export LD_LIBRARY_PATH=/opt/mace_python/lib:$LD_LIBRARY_PATH
-/opt/mace_python/bin/python3 -c "import torch; import mace; print('OK')"
+export LD_LIBRARY_PATH=$HOME/mace_python/lib:$LD_LIBRARY_PATH
+$HOME/mace_python/bin/python3 -c "import torch; import mace; print('OK')"
 ```
 
 ---
@@ -439,7 +443,11 @@ If Python 3.11 already exists:
 
 Install dependencies manually then skip:
 ```bash
-sudo apt-get install ... (your deps)
+# Ubuntu/Debian:
+sudo apt-get install build-essential libncurses5-dev ... (your deps)
+# RHEL/Rocky:
+sudo dnf install gcc gcc-c++ make ncurses-devel ... (your deps)
+
 ./install_mace_wrapper.sh --skip-deps
 ```
 
@@ -464,7 +472,7 @@ sudo apt-get install ... (your deps)
 After installation:
 
 ```
-/opt/mace_python/                           # Python installation
+$HOME/mace_python/                           # Python installation
 ├── bin/python3                             # Python 3.11.10
 ├── lib/libpython3.11.so.1.0                # Shared library
 └── lib/python3.11/site-packages/           # Packages
@@ -513,7 +521,7 @@ int main() {
 ```bash
 g++ -std=c++17 -I~/mace_wrapper/include myapp.cpp \
     -L~/mace_wrapper/lib -lmace_wrapper \
-    -Wl,-rpath,~/mace_wrapper/lib:/opt/mace_python/lib \
+    -Wl,-rpath,~/mace_wrapper/lib:$HOME/mace_python/lib \
     -o myapp
 ```
 
@@ -542,7 +550,7 @@ add_executable(myapp myapp.cpp)
 target_link_libraries(myapp ${MACE_WRAPPER})
 
 set_target_properties(myapp PROPERTIES
-    INSTALL_RPATH "~/mace_wrapper/lib:/opt/mace_python/lib"
+    INSTALL_RPATH "~/mace_wrapper/lib:$HOME/mace_python/lib"
 )
 ```
 

@@ -105,7 +105,7 @@
 ## Impact on Current Project
 
 ✓ No impact - all MACE wrapper project files intact
-✓ `/opt/mace_python` preserved (500MB)
+✓ `$HOME/mace_python` preserved (500MB)
 ✓ System Python unaffected
 ✓ Build logs preserved in `/tmp/python_*.log`
 ✓ Can proceed with MACE stack installation

@@ -45,7 +45,7 @@ System Python: Python 3.10.12
 System Python Path: /usr/bin/python3
 Site Packages: /usr/lib/python3.10/site-packages
 
-Target: Build isolated Python 3.11.10 at /opt/mace_python
+Target: Build isolated Python 3.11.10 at $HOME/mace_python
 
 =================================================================
 BUILD DEPENDENCIES STATUS
@@ -92,7 +92,7 @@ KEY DIFFERENCES FROM DOCUMENTATION
 INSTALLATION PLAN
 =================================================================
 Phase 1: Install missing build dependencies
-Phase 2: Build Python 3.11.10 at /opt/mace_python
+Phase 2: Build Python 3.11.10 at $HOME/mace_python
 Phase 3: Install PyTorch + MACE + cuequivariance stack
 Phase 4: Build MACE wrapper library
 Phase 5: Test with "small" model (8GB VRAM safe)

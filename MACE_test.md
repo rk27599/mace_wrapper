@@ -51,7 +51,7 @@ This report provides a **complete, production-ready solution** to integrate MACE
 │  └─────────────────────────────────────────────────────┘   │
 │                         ↓                                    │
 │                    Link: -lmace_wrapper_v1                  │
-│                    RPATH: ./lib:/opt/mace_python/lib        │
+│                    RPATH: ./lib:$HOME/mace_python/lib        │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
                           ↓
@@ -88,8 +88,8 @@ This report provides a **complete, production-ready solution** to integrate MACE
 
 ```bash
 # Create installation directory
-sudo mkdir -p /opt/mace_python
-sudo chown $USER:$USER /opt/mace_python
+sudo mkdir -p $HOME/mace_python
+sudo chown $USER:$USER $HOME/mace_python
 
 # Download Python 3.11 source
 cd /tmp
@@ -98,7 +98,7 @@ tar xzf Python-3.11.10.tgz
 cd Python-3.11.10
 
 # Configure with isolated prefix
-./configure --prefix=/opt/mace_python \
+./configure --prefix=$HOME/mace_python \
     --enable-shared \
     --enable-optimizations \
     --with-ensurepip=install \
@@ -109,7 +109,7 @@ make -j8
 make install
 
 # Verify
-/opt/mace_python/bin/python3 --version
+$HOME/mace_python/bin/python3 --version
 # Output: Python 3.11.10
 ```
 
@@ -117,26 +117,26 @@ make install
 
 ```bash
 # Use isolated Python only
-/opt/mace_python/bin/python3 -m pip install --upgrade pip setuptools wheel
+$HOME/mace_python/bin/python3 -m pip install --upgrade pip setuptools wheel
 
 # Install PyTorch with CUDA 12 support
-/opt/mace_python/bin/python3 -m pip install torch torchvision \
+$HOME/mace_python/bin/python3 -m pip install torch torchvision \
     --index-url https://download.pytorch.org/whl/cu121
 
 # Install MACE
-/opt/mace_python/bin/python3 -m pip install mace-torch
+$HOME/mace_python/bin/python3 -m pip install mace-torch
 
 # Install cuEquivariance for GPU acceleration
-/opt/mace_python/bin/python3 -m pip install \
+$HOME/mace_python/bin/python3 -m pip install \
     cuequivariance \
     cuequivariance-torch \
     cuequivariance-ops-torch-cu12
 
 # Install supporting libraries
-/opt/mace_python/bin/python3 -m pip install pybind11 ase
+$HOME/mace_python/bin/python3 -m pip install pybind11 ase
 
 # Verify installation
-/opt/mace_python/bin/python3 -c "import mace; import torch; print('MACE OK')"
+$HOME/mace_python/bin/python3 -c "import mace; import torch; print('MACE OK')"
 # Output: MACE OK
 ```
 
@@ -173,7 +173,7 @@ cd ~/mace_wrapper
 
 # Verify Makefile configuration
 make info
-# Output should show /opt/mace_python paths
+# Output should show $HOME/mace_python paths
 
 # Build
 make clean && make -j8
@@ -184,7 +184,7 @@ ls -lh lib/libmace_wrapper_v1.so
 
 # Check library dependencies
 ldd lib/libmace_wrapper_v1.so | grep python
-# Output should show /opt/mace_python/lib paths
+# Output should show $HOME/mace_python/lib paths
 ```
 
 ### Phase 3: Integration into Your Project (15 minutes)
@@ -221,7 +221,7 @@ MACE_DIR = $(PWD)                    # Current project directory
 MACE_LIB_DIR = $(MACE_DIR)/lib
 MACE_INCLUDE_DIR = $(MACE_DIR)/include
 MACE_PYTHON_DIR = $(MACE_DIR)/python
-ISOLATED_PYTHON_LIB = /opt/mace_python/lib
+ISOLATED_PYTHON_LIB = $HOME/mace_python/lib
 
 # Add to compiler flags
 CFLAGS += -I$(MACE_INCLUDE_DIR)
@@ -252,7 +252,7 @@ MACE_ENV = \
 **Final structure after all steps:**
 
 ```
-/opt/mace_python/                 # Isolated Python (system-wide)
+$HOME/mace_python/                 # Isolated Python (system-wide)
 ├── bin/
 │   ├── python3
 │   ├── pip
@@ -686,7 +686,7 @@ def compute_energy_forces(positions, atomic_numbers, cell=None, pbc=None):
 # MACE Wrapper Shared Library - Isolated Python
 # ============================================================
 
-ISOLATED_PYTHON_HOME = /opt/mace_python
+ISOLATED_PYTHON_HOME = $HOME/mace_python
 PYTHON_BIN = $(ISOLATED_PYTHON_HOME)/bin/python3
 PYTHON_CONFIG = $(ISOLATED_PYTHON_HOME)/bin/python3-config
 
@@ -816,13 +816,13 @@ cd /tmp
 wget https://www.python.org/ftp/python/3.11.10/Python-3.11.10.tgz
 tar xzf Python-3.11.10.tgz
 cd Python-3.11.10
-./configure --prefix=/opt/mace_python --enable-shared
+./configure --prefix=$HOME/mace_python --enable-shared
 make -j8 && make install
 
 # 2. Install MACE to isolated Python (5 minutes)
-/opt/mace_python/bin/python3 -m pip install mace-torch
-/opt/mace_python/bin/python3 -m pip install cuequivariance cuequivariance-torch cuequivariance-ops-torch-cu12
-/opt/mace_python/bin/python3 -m pip install pybind11 ase
+$HOME/mace_python/bin/python3 -m pip install mace-torch
+$HOME/mace_python/bin/python3 -m pip install cuequivariance cuequivariance-torch cuequivariance-ops-torch-cu12
+$HOME/mace_python/bin/python3 -m pip install pybind11 ase
 
 # 3. Build MACE wrapper library (2 minutes)
 cd ~/mace_wrapper
@@ -853,8 +853,8 @@ cp -r python /path/to/your/project/
 MACE_DIR = $(PWD)
 MACE_INCLUDES = -I$(MACE_DIR)/include
 MACE_LIBS = -L$(MACE_DIR)/lib -lmace_wrapper_v1
-MACE_RPATH = -Wl,-rpath,$(MACE_DIR)/lib:/opt/mace_python/lib
-MACE_ENV = export LD_LIBRARY_PATH=/opt/mace_python/lib:$(MACE_DIR)/lib:$$LD_LIBRARY_PATH; \
+MACE_RPATH = -Wl,-rpath,$(MACE_DIR)/lib:$HOME/mace_python/lib
+MACE_ENV = export LD_LIBRARY_PATH=$HOME/mace_python/lib:$(MACE_DIR)/lib:$$LD_LIBRARY_PATH; \
            export PYTHONPATH=$(MACE_DIR)/python:$$PYTHONPATH
 
 # Add to existing CXXFLAGS and LDFLAGS
@@ -904,21 +904,21 @@ int main() {
 ```bash
 # Check isolated Python is separate
 which python3              # System Python
-/opt/mace_python/bin/python3 --version  # Isolated Python 3.11
+$HOME/mace_python/bin/python3 --version  # Isolated Python 3.11
 
 # Check MACE is ONLY in isolated Python
 python3 -c "import mace" 2>&1        # Should fail (system Python)
-/opt/mace_python/bin/python3 -c "import mace"  # Should succeed
+$HOME/mace_python/bin/python3 -c "import mace"  # Should succeed
 ```
 
 ### Test 2: Verify Library Isolation
 
 ```bash
-# Check library dependencies (should point to /opt/mace_python)
+# Check library dependencies (should point to $HOME/mace_python)
 ldd lib/libmace_wrapper_v1.so
 
 # Output should include:
-# libpython3.11.so.1.0 => /opt/mace_python/lib/libpython3.11.so.1.0
+# libpython3.11.so.1.0 => $HOME/mace_python/lib/libpython3.11.so.1.0
 # libc.so.6 => /lib64/libc.so.6
 
 # Should NOT show system Python paths
@@ -949,7 +949,7 @@ make test
 
 ```bash
 # Check if CUDA is being used
-export LD_LIBRARY_PATH=/opt/mace_python/lib:./lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$HOME/mace_python/lib:./lib:$LD_LIBRARY_PATH
 export PYTHONPATH=./python:$PYTHONPATH
 
 # Monitor GPU usage
@@ -965,7 +965,7 @@ nvidia-smi -l 1 &
 
 ### Production Deployment Checklist
 
-- [ ] Isolated Python installed at `/opt/mace_python`
+- [ ] Isolated Python installed at `$HOME/mace_python`
 - [ ] MACE library compiled: `lib/libmace_wrapper_v1.so` (280 MB)
 - [ ] Header file copied: `include/mace_wrapper.h`
 - [ ] Python code copied: `python/mace_calculator.py`
@@ -980,7 +980,7 @@ nvidia-smi -l 1 &
 - NVIDIA GPU with CUDA compute capability 6.0+
 - 4+ GB GPU memory (RTX A4000: 24 GB - sufficient)
 - 2+ GB CPU RAM
-- `/opt/mace_python` directory readable
+- `$HOME/mace_python` directory readable
 - glibc 2.17+ (standard on all modern Linux)
 
 ### Deployment Package Structure
@@ -991,7 +991,7 @@ deployment/
 │   └── your_app
 ├── lib/
 │   ├── libmace_wrapper_v1.so
-│   └── libpython3.11.so.1.0 (symlink to /opt/mace_python/lib)
+│   └── libpython3.11.so.1.0 (symlink to $HOME/mace_python/lib)
 ├── include/
 │   └── mace_wrapper.h
 ├── python/
@@ -1002,7 +1002,7 @@ deployment/
 Run script (`run.sh`):
 ```bash
 #!/bin/bash
-export LD_LIBRARY_PATH=/opt/mace_python/lib:$(dirname $0)/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$HOME/mace_python/lib:$(dirname $0)/lib:$LD_LIBRARY_PATH
 export PYTHONPATH=$(dirname $0)/python:$PYTHONPATH
 exec $(dirname $0)/bin/your_app "$@"
 ```
@@ -1025,7 +1025,7 @@ export PYTHONPATH=$(pwd)/python:$PYTHONPATH
 **Cause:** Isolated Python library not in LD_LIBRARY_PATH  
 **Solution:**
 ```bash
-export LD_LIBRARY_PATH=/opt/mace_python/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$HOME/mace_python/lib:$LD_LIBRARY_PATH
 ```
 
 ### Issue 3: "CUDA out of memory"
@@ -1047,7 +1047,7 @@ MACEHandle mace = mace_init(NULL, "medium", "cpu", 0);
 ```bash
 # Recompile with isolated Python
 cd ~/mace_wrapper
-make clean && make ISOLATED_PYTHON_HOME=/opt/mace_python
+make clean && make ISOLATED_PYTHON_HOME=$HOME/mace_python
 ```
 
 ### Issue 5: Different results on different runs
@@ -1120,7 +1120,7 @@ watch -n 0.1 nvidia-smi
 - [ ] Internet connection for downloads
 
 ### Setup Phase (2-3 hours)
-- [ ] Build isolated Python at `/opt/mace_python`
+- [ ] Build isolated Python at `$HOME/mace_python`
 - [ ] Install MACE/PyTorch/cuEquivariance to isolated Python
 - [ ] Create MACE wrapper library files (5 C++ files)
 - [ ] Build wrapper library with `make`
@@ -1153,21 +1153,21 @@ All code is production-ready and can be copy-pasted directly.
 
 1. Check isolated Python installation:
 ```bash
-/opt/mace_python/bin/python3 -c "import mace; import cuequivariance; print('OK')"
+$HOME/mace_python/bin/python3 -c "import mace; import cuequivariance; print('OK')"
 ```
 
 2. Check pybind11:
 ```bash
-/opt/mace_python/bin/python3 -m pybind11 --includes
+$HOME/mace_python/bin/python3 -m pybind11 --includes
 ```
 
 3. Try manual compilation:
 ```bash
 g++ -std=c++17 -shared -fPIC \
-    $(/opt/mace_python/bin/python3-config --includes) \
-    $(/opt/mace_python/bin/python3 -m pybind11 --includes) \
+    $($HOME/mace_python/bin/python3-config --includes) \
+    $($HOME/mace_python/bin/python3 -m pybind11 --includes) \
     src/mace_wrapper.cpp \
-    $(/opt/mace_python/bin/python3-config --ldflags --embed) \
+    $($HOME/mace_python/bin/python3-config --ldflags --embed) \
     -lpthread -ldl -lutil -lm \
     -o lib/libmace_wrapper_v1.so
 ```
@@ -1186,11 +1186,11 @@ g++ -std=c++17 -shared -fPIC \
 
 ```bash
 # Build isolated Python
-/tmp/Python-3.11.10/configure --prefix=/opt/mace_python --enable-shared
+/tmp/Python-3.11.10/configure --prefix=$HOME/mace_python --enable-shared
 make -j8 && make install
 
 # Install MACE
-/opt/mace_python/bin/python3 -m pip install mace-torch cuequivariance cuequivariance-ops-torch-cu12
+$HOME/mace_python/bin/python3 -m pip install mace-torch cuequivariance cuequivariance-ops-torch-cu12
 
 # Build wrapper
 cd ~/mace_wrapper && make clean && make -j8
@@ -1202,7 +1202,7 @@ make test
 cp lib/libmace_wrapper_v1.so /path/to/project/lib/
 
 # Run with proper environment
-export LD_LIBRARY_PATH=/opt/mace_python/lib:./lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$HOME/mace_python/lib:./lib:$LD_LIBRARY_PATH
 export PYTHONPATH=./python:$PYTHONPATH
 ./your_app
 ```

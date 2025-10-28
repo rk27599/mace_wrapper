@@ -33,7 +33,7 @@ Forces:
 ## 📊 Final Installation Status
 
 ### Phase 1: Isolated Python Environment ✓
-- **Location:** `/opt/mace_python`
+- **Location:** `$HOME/mace_python`
 - **Python:** 3.11.10
 - **Size:** ~500MB
 - **Packages Installed:**
@@ -56,8 +56,8 @@ Forces:
 ### Issue #1: pybind11 Python Path Conflict
 **Problem:** Embedded Python couldn't import numpy - "source directory" error
 **Root Cause:** pybind11's `scoped_interpreter` was using system lib-dynload instead of isolated Python
-**Solution:** Set `PYTHONHOME=/opt/mace_python` before initializing interpreter
-**Code:** Added `setenv("PYTHONHOME", "/opt/mace_python", 1);` in `mace_init()`
+**Solution:** Set `PYTHONHOME=$HOME/mace_python` before initializing interpreter
+**Code:** Added `setenv("PYTHONHOME", "$HOME/mace_python", 1);` in `mace_init()`
 **Result:** ✓ RESOLVED - All imports working
 
 ### Issue #2: cuEquivariance WSL2 Incompatibility
@@ -138,7 +138,7 @@ Forces:
 ```cpp
 // Added PYTHONHOME setup before interpreter init
 if (g_init_count == 0) {
-    setenv("PYTHONHOME", "/opt/mace_python", 1);
+    setenv("PYTHONHOME", "$HOME/mace_python", 1);
     g_interpreter = new py::scoped_interpreter();
     // ...
 }
@@ -165,7 +165,7 @@ MACEHandle mace = mace_init(NULL, "small", "cpu", 0);
 ## 💾 Disk Usage
 
 - **Python 3.11 Source:** ~100MB (can delete after install)
-- **Isolated Python:** ~500MB at `/opt/mace_python`
+- **Isolated Python:** ~500MB at `$HOME/mace_python`
 - **MACE Models:** ~400MB at `~/.cache/mace/` (downloaded on first run)
 - **Wrapper Library:** 206KB
 - **Total:** ~1GB
@@ -219,7 +219,7 @@ MACEHandle mace = mace_init(NULL, "small", "cuda", 1);  // Enable GPU + cuEq
 
 ## ✅ Verification Checklist
 
-- [x] Python 3.11.10 installed at `/opt/mace_python`
+- [x] Python 3.11.10 installed at `$HOME/mace_python`
 - [x] All MACE dependencies installed
 - [x] pybind11 configured correctly
 - [x] Wrapper library builds without errors
@@ -247,20 +247,20 @@ MACEHandle mace = mace_init(NULL, "small", "cuda", 1);  // Enable GPU + cuEq
 ### Build Library:
 ```bash
 cd ~/mace_wrapper
-export LD_LIBRARY_PATH=/opt/mace_python/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$HOME/mace_python/lib:$LD_LIBRARY_PATH
 make clean && make
 ```
 
 ### Run Test:
 ```bash
 cd ~/mace_wrapper
-export LD_LIBRARY_PATH=/opt/mace_python/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$HOME/mace_python/lib:$LD_LIBRARY_PATH
 make test
 ```
 
 ### Verify Installation:
 ```bash
-/opt/mace_python/bin/python3 -c "import torch; import mace; print('✓ OK')"
+$HOME/mace_python/bin/python3 -c "import torch; import mace; print('✓ OK')"
 ```
 
 ---
@@ -268,13 +268,13 @@ make test
 ## 📞 Support Information
 
 **Build Logs:** `/tmp/mace_wrapper_build.log`, `/tmp/mace_test_cpu.log`
-**Python Installation:** `/opt/mace_python`
+**Python Installation:** `$HOME/mace_python`
 **Wrapper Location:** `~/mace_wrapper`
 **Model Cache:** `~/.cache/mace/`
 
 **For Issues:**
 1. Check `DEPENDENCY_ISSUES.md` for known problems
-2. Verify LD_LIBRARY_PATH includes `/opt/mace_python/lib`
+2. Verify LD_LIBRARY_PATH includes `$HOME/mace_python/lib`
 3. On native Linux, enable CUDA mode for better performance
 4. Ensure Python 3.11.10 is used (not system Python)
 

@@ -7,8 +7,15 @@ namespace py = pybind11;
 int main() {
     std::cout << "=== Testing pybind11 with PYTHONHOME ===" << std::endl;
 
-    // Set PYTHONHOME to isolated Python before initializing interpreter
-    setenv("PYTHONHOME", "/opt/mace_python", 1);
+    // Set PYTHONHOME to isolated Python installation in user home directory
+    const char* home = getenv("HOME");
+    if (home != nullptr) {
+        std::string python_home = std::string(home) + "/mace_python";
+        setenv("PYTHONHOME", python_home.c_str(), 1);
+    } else {
+        std::cerr << "Error: HOME environment variable not set" << std::endl;
+        return 1;
+    }
 
     py::scoped_interpreter guard{};
 

@@ -2,7 +2,7 @@
 # MACE Wrapper Shared Library - Isolated Python
 # ============================================================
 
-ISOLATED_PYTHON_HOME = /opt/mace_python
+ISOLATED_PYTHON_HOME = $(HOME)/mace_python
 PYTHON_BIN = $(ISOLATED_PYTHON_HOME)/bin/python3
 PYTHON_CONFIG = $(ISOLATED_PYTHON_HOME)/bin/python3-config
 

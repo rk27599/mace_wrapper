@@ -23,7 +23,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 # Configuration
-PYTHON_INSTALL_DIR="/opt/mace_python"
+PYTHON_INSTALL_DIR="$HOME/mace_python"
 WRAPPER_DIR="$HOME/mace_wrapper"
 OUTPUT_DIR="/tmp"
 INCLUDE_PYTHON=false
@@ -189,9 +189,8 @@ This package includes a pre-built Python installation. Follow these steps:
 
 2. **Install Python:**
    ```bash
-   sudo mkdir -p /opt
-   sudo cp -r mace_python /opt/
-   sudo chown -R $USER:$USER /opt/mace_python
+   mkdir -p ~/mace_python
+   cp -r mace_python/* ~/mace_python/
    ```
 
 3. **Install Wrapper:**
@@ -202,7 +201,7 @@ This package includes a pre-built Python installation. Follow these steps:
 
 4. **Set up environment:**
    ```bash
-   export LD_LIBRARY_PATH=/opt/mace_python/lib:$LD_LIBRARY_PATH
+   export LD_LIBRARY_PATH=~/mace_python/lib:$LD_LIBRARY_PATH
    export PYTHONPATH=~/mace_wrapper/python:$PYTHONPATH
    ```
 
@@ -255,7 +254,7 @@ cat >> "$TEMP_DIR/README.md" << 'EOF'
 
 ## System Requirements
 
-- **OS:** Ubuntu 20.04+ or similar Linux distribution
+- **OS:** Ubuntu 20.04+ / RHEL 8+ / Rocky Linux 8+ or similar Linux distribution
 - **CPU:** Any modern x86_64 processor
 - **RAM:** 8GB minimum (16GB recommended)
 - **Disk:** 15GB free space

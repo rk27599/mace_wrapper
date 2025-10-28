@@ -30,7 +30,7 @@
 
 ### Patch Applied
 
-**File:** `/opt/mace_python/lib/python3.11/site-packages/cuequivariance_ops/triton/cache_manager.py`
+**File:** `$HOME/mace_python/lib/python3.11/site-packages/cuequivariance_ops/triton/cache_manager.py`
 
 **Changes:**
 ```python
@@ -47,7 +47,7 @@ except pynvml.NVMLError_NotSupported:
     gpu_core_count = 5888  # RTX 3070 cores
 ```
 
-**Backup:** `/opt/mace_python/lib/python3.11/site-packages/cuequivariance_ops/triton/cache_manager.py.backup`
+**Backup:** `$HOME/mace_python/lib/python3.11/site-packages/cuequivariance_ops/triton/cache_manager.py.backup`
 
 ### Test Results
 

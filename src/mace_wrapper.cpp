@@ -29,8 +29,14 @@ MACEHandle mace_init(const char* model_path,
         MACECalculator* calc = new MACECalculator();
 
         if (g_init_count == 0) {
-            // Set PYTHONHOME to isolated Python installation
-            setenv("PYTHONHOME", "/opt/mace_python", 1);
+            // Set PYTHONHOME to isolated Python installation in user home directory
+            const char* home = getenv("HOME");
+            if (home != nullptr) {
+                std::string python_home = std::string(home) + "/mace_python";
+                setenv("PYTHONHOME", python_home.c_str(), 1);
+            } else {
+                throw std::runtime_error("HOME environment variable not set");
+            }
 
             g_interpreter = new py::scoped_interpreter();
 

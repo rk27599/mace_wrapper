@@ -6,7 +6,7 @@
 # Usage: ./install_mace_wrapper.sh [--skip-python] [--skip-deps] [--cpu-only]
 #
 # Options:
-#   --skip-python   Skip Python build if /opt/mace_python exists
+#   --skip-python   Skip Python build if $HOME/mace_python exists
 #   --skip-deps     Skip dependency installation (assumes already installed)
 #   --cpu-only      Install without CUDA support (CPU mode only)
 #
@@ -27,7 +27,7 @@ NC='\033[0m'
 
 # Configuration
 PYTHON_VERSION="3.11.10"
-PYTHON_INSTALL_DIR="/opt/mace_python"
+PYTHON_INSTALL_DIR="$HOME/mace_python"
 WRAPPER_DIR="$HOME/mace_wrapper"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
@@ -115,29 +115,88 @@ fi
 if [ "$SKIP_DEPS" = false ]; then
     print_header "Installing Dependencies"
 
-    DEPS=(
-        "build-essential"
-        "libncurses5-dev"
-        "libncursesw5-dev"
-        "libreadline-dev"
-        "libsqlite3-dev"
-        "libgdbm-dev"
-        "libdb-dev"
-        "libbz2-dev"
-        "liblzma-dev"
-        "uuid-dev"
-        "libffi-dev"
-        "libssl-dev"
-        "zlib1g-dev"
-        "wget"
-        "ca-certificates"
-    )
+    # Detect package manager and set dependencies accordingly
+    if command -v apt-get &> /dev/null; then
+        # Debian/Ubuntu system
+        PKG_MANAGER="apt-get"
+        PKG_UPDATE="sudo apt-get update"
+        PKG_INSTALL="sudo apt-get install -y"
+        LOG_PREFIX="apt"
+        DEPS=(
+            "build-essential"
+            "libncurses5-dev"
+            "libncursesw5-dev"
+            "libreadline-dev"
+            "libsqlite3-dev"
+            "libgdbm-dev"
+            "libdb-dev"
+            "libbz2-dev"
+            "liblzma-dev"
+            "uuid-dev"
+            "libffi-dev"
+            "libssl-dev"
+            "zlib1g-dev"
+            "wget"
+            "ca-certificates"
+        )
+    elif command -v dnf &> /dev/null; then
+        # RHEL/CentOS/Fedora 8+ with DNF
+        PKG_MANAGER="dnf"
+        PKG_UPDATE="sudo dnf makecache"
+        PKG_INSTALL="sudo dnf install -y"
+        LOG_PREFIX="dnf"
+        DEPS=(
+            "gcc"
+            "gcc-c++"
+            "make"
+            "ncurses-devel"
+            "readline-devel"
+            "sqlite-devel"
+            "gdbm-devel"
+            "libdb-devel"
+            "bzip2-devel"
+            "xz-devel"
+            "libuuid-devel"
+            "libffi-devel"
+            "openssl-devel"
+            "zlib-devel"
+            "wget"
+            "ca-certificates"
+        )
+    elif command -v yum &> /dev/null; then
+        # RHEL/CentOS 7 with YUM
+        PKG_MANAGER="yum"
+        PKG_UPDATE="sudo yum makecache"
+        PKG_INSTALL="sudo yum install -y"
+        LOG_PREFIX="yum"
+        DEPS=(
+            "gcc"
+            "gcc-c++"
+            "make"
+            "ncurses-devel"
+            "readline-devel"
+            "sqlite-devel"
+            "gdbm-devel"
+            "libdb-devel"
+            "bzip2-devel"
+            "xz-devel"
+            "libuuid-devel"
+            "libffi-devel"
+            "openssl-devel"
+            "zlib-devel"
+            "wget"
+            "ca-certificates"
+        )
+    else
+        print_error "No supported package manager found (apt-get, dnf, or yum)"
+        exit 1
+    fi
 
-    print_step "Updating package lists..."
-    sudo apt-get update > /tmp/mace_install_apt_update.log 2>&1
+    print_step "Updating package lists using $PKG_MANAGER..."
+    $PKG_UPDATE > /tmp/mace_install_${LOG_PREFIX}_update.log 2>&1
 
     print_step "Installing build dependencies..."
-    sudo apt-get install -y "${DEPS[@]}" > /tmp/mace_install_apt_install.log 2>&1
+    $PKG_INSTALL "${DEPS[@]}" > /tmp/mace_install_${LOG_PREFIX}_install.log 2>&1
     print_success "Dependencies installed"
 else
     print_warning "Skipping dependency installation (--skip-deps)"
@@ -158,7 +217,7 @@ else
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             print_step "Removing existing installation..."
-            sudo rm -rf "$PYTHON_INSTALL_DIR"
+            rm -rf "$PYTHON_INSTALL_DIR"
         else
             print_error "Installation cancelled"
             exit 3
@@ -194,7 +253,7 @@ else
 
     # Install
     print_step "Installing Python..."
-    sudo make install > /tmp/mace_install_python_install.log 2>&1
+    make install > /tmp/mace_install_python_install.log 2>&1
 
     # Verify
     if [ ! -x "$PYTHON_INSTALL_DIR/bin/python3" ]; then
@@ -295,12 +354,13 @@ if [ "$CPU_ONLY" = false ]; then
 
         if [ -f "$CACHE_MANAGER" ]; then
             # Backup original
-            sudo cp "$CACHE_MANAGER" "${CACHE_MANAGER}.backup"
+            cp "$CACHE_MANAGER" "${CACHE_MANAGER}.backup"
 
             # Apply patch
-            sudo python3 << 'EOF'
+            $PYTHON_INSTALL_DIR/bin/python3 << EOF
 import sys
-cache_manager = "/opt/mace_python/lib/python3.11/site-packages/cuequivariance_ops/triton/cache_manager.py"
+import os
+cache_manager = os.path.join(os.path.expanduser("~"), "mace_python/lib/python3.11/site-packages/cuequivariance_ops/triton/cache_manager.py")
 
 with open(cache_manager, 'r') as f:
     content = f.read()

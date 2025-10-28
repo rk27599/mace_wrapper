@@ -192,24 +192,55 @@ fi
 
 # Check Python build dependencies
 print_header "Python Build Dependencies"
-PYTHON_DEPS=(
-    "libncurses5-dev"
-    "libncursesw5-dev"
-    "libreadline-dev"
-    "libsqlite3-dev"
-    "libgdbm-dev"
-    "libdb-dev"
-    "libbz2-dev"
-    "liblzma-dev"
-    "uuid-dev"
-    "libffi-dev"
-    "libssl-dev"
-    "zlib1g-dev"
-)
+
+# Detect package manager and set dependencies accordingly
+if command -v dpkg &> /dev/null; then
+    # Debian/Ubuntu system
+    PKG_CHECK_CMD="dpkg -l | grep -q \"^ii  \$dep\""
+    PKG_MANAGER="apt-get"
+    PYTHON_DEPS=(
+        "libncurses5-dev"
+        "libncursesw5-dev"
+        "libreadline-dev"
+        "libsqlite3-dev"
+        "libgdbm-dev"
+        "libdb-dev"
+        "libbz2-dev"
+        "liblzma-dev"
+        "uuid-dev"
+        "libffi-dev"
+        "libssl-dev"
+        "zlib1g-dev"
+    )
+elif command -v rpm &> /dev/null; then
+    # RHEL/CentOS/Fedora system
+    PKG_CHECK_CMD="rpm -q \$dep &> /dev/null"
+    if command -v dnf &> /dev/null; then
+        PKG_MANAGER="dnf"
+    else
+        PKG_MANAGER="yum"
+    fi
+    PYTHON_DEPS=(
+        "ncurses-devel"
+        "readline-devel"
+        "sqlite-devel"
+        "gdbm-devel"
+        "libdb-devel"
+        "bzip2-devel"
+        "xz-devel"
+        "libuuid-devel"
+        "libffi-devel"
+        "openssl-devel"
+        "zlib-devel"
+    )
+else
+    print_error "Unknown package manager - cannot check dependencies"
+    exit 2
+fi
 
 PYTHON_MISSING=()
 for dep in "${PYTHON_DEPS[@]}"; do
-    if dpkg -l | grep -q "^ii  $dep"; then
+    if eval $PKG_CHECK_CMD; then
         print_success "$dep"
     else
         print_error "$dep (missing)"
@@ -223,12 +254,13 @@ fi
 
 # Check for existing Python 3.11 installation
 print_header "Existing Installations"
-if [ -d "/opt/mace_python" ]; then
-    print_warning "Found existing /opt/mace_python - will be used if valid"
-    SYSTEM_INFO+=("existing_python:/opt/mace_python")
+MACE_PYTHON_DIR="$HOME/mace_python"
+if [ -d "$MACE_PYTHON_DIR" ]; then
+    print_warning "Found existing $MACE_PYTHON_DIR - will be used if valid"
+    SYSTEM_INFO+=("existing_python:$MACE_PYTHON_DIR")
 
-    if [ -x "/opt/mace_python/bin/python3" ]; then
-        EXISTING_PY_VER=$(/opt/mace_python/bin/python3 --version 2>&1 | awk '{print $2}')
+    if [ -x "$MACE_PYTHON_DIR/bin/python3" ]; then
+        EXISTING_PY_VER=$($MACE_PYTHON_DIR/bin/python3 --version 2>&1 | awk '{print $2}')
         print_success "Existing Python: $EXISTING_PY_VER"
         SYSTEM_INFO+=("existing_python_version:$EXISTING_PY_VER")
     fi
@@ -245,7 +277,13 @@ if [ ${#MISSING_DEPS[@]} -gt 0 ]; then
     if [ "$JSON_OUTPUT" = false ]; then
         echo ""
         echo "Install command:"
-        echo "  sudo apt-get update && sudo apt-get install -y \\"
+        if [ "$PKG_MANAGER" = "apt-get" ]; then
+            echo "  sudo apt-get update && sudo apt-get install -y \\"
+        elif [ "$PKG_MANAGER" = "dnf" ]; then
+            echo "  sudo dnf install -y \\"
+        elif [ "$PKG_MANAGER" = "yum" ]; then
+            echo "  sudo yum install -y \\"
+        fi
         for dep in "${MISSING_DEPS[@]}"; do
             echo "    $dep \\"
         done | sed '$ s/ \\$//'

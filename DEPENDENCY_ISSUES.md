@@ -102,11 +102,11 @@ MACEHandle mace = mace_init(NULL, "small", "cuda", 1);
 **Commands to try:**
 ```bash
 # Option 1: cu121 (recommended)
-/opt/mace_python/bin/python3 -m pip install torch torchvision \
+$HOME/mace_python/bin/python3 -m pip install torch torchvision \
     --index-url https://download.pytorch.org/whl/cu121
 
 # Option 2: cu118 (fallback)
-/opt/mace_python/bin/python3 -m pip install torch torchvision \
+$HOME/mace_python/bin/python3 -m pip install torch torchvision \
     --index-url https://download.pytorch.org/whl/cu118
 ```
 
@@ -127,11 +127,11 @@ MACEHandle mace = mace_init(NULL, "small", "cuda", 1);
 - **Configure time:** 2 minutes
 - **Build time:** 12 minutes (make -j8 with optimizations)
 - **Install time:** 2 minutes
-- **Total installation size:** ~500 MB at /opt/mace_python
+- **Total installation size:** ~500 MB at $HOME/mace_python
 - Python 3.11.10 successfully installed
 - Shared library: libpython3.11.so.1.0 (23MB)
 - pip 24.0 and setuptools 65.5.0 included
-- **Important:** Requires `export LD_LIBRARY_PATH=/opt/mace_python/lib:$LD_LIBRARY_PATH`
+- **Important:** Requires `export LD_LIBRARY_PATH=$HOME/mace_python/lib:$LD_LIBRARY_PATH`
 
 **Build logs saved:**
 - /tmp/python_configure.log
@@ -140,8 +140,8 @@ MACEHandle mace = mace_init(NULL, "small", "cuda", 1);
 
 **Verification:**
 ```bash
-$ export LD_LIBRARY_PATH=/opt/mace_python/lib:$LD_LIBRARY_PATH
-$ /opt/mace_python/bin/python3 --version
+$ export LD_LIBRARY_PATH=$HOME/mace_python/lib:$LD_LIBRARY_PATH
+$ $HOME/mace_python/bin/python3 --version
 Python 3.11.10
 ```
 
@@ -168,8 +168,8 @@ Python 3.11.10
 
 **Verification:**
 ```bash
-$ export LD_LIBRARY_PATH=/opt/mace_python/lib:$LD_LIBRARY_PATH
-$ /opt/mace_python/bin/python3 -c "import torch; import mace; print('OK')"
+$ export LD_LIBRARY_PATH=$HOME/mace_python/lib:$LD_LIBRARY_PATH
+$ $HOME/mace_python/bin/python3 -c "import torch; import mace; print('OK')"
 OK
 ```
 
@@ -222,7 +222,7 @@ OK
 **Solution:**
 ```cpp
 // In src/mace_wrapper.cpp, before creating interpreter:
-setenv("PYTHONHOME", "/opt/mace_python", 1);
+setenv("PYTHONHOME", "$HOME/mace_python", 1);
 g_interpreter = new py::scoped_interpreter();
 ```
 
@@ -247,7 +247,7 @@ g_interpreter = new py::scoped_interpreter();
    - Failed: cuEquivariance imports happen before patch runs
 
 2. ✅ **Direct source patching** (WORKING SOLUTION)
-   - File: `/opt/mace_python/lib/python3.11/site-packages/cuequivariance_ops/triton/cache_manager.py`
+   - File: `$HOME/mace_python/lib/python3.11/site-packages/cuequivariance_ops/triton/cache_manager.py`
    - Backup: `cache_manager.py.backup`
 
 **Patch Applied:**
@@ -402,7 +402,7 @@ MACEHandle mace = mace_init(NULL, "small", "cpu", 0);
 ## Critical Files Modified
 
 ### Source Patch (Required for WSL2, safe for native Linux)
-- **File:** `/opt/mace_python/lib/python3.11/site-packages/cuequivariance_ops/triton/cache_manager.py`
+- **File:** `$HOME/mace_python/lib/python3.11/site-packages/cuequivariance_ops/triton/cache_manager.py`
 - **Backup:** `cache_manager.py.backup`
 - **Change:** Added try-except blocks for WSL2-unsupported NVML calls
 - **Impact:** Enables cuEquivariance import in WSL2
@@ -410,7 +410,7 @@ MACEHandle mace = mace_init(NULL, "small", "cpu", 0);
 
 ### Wrapper Implementation (Critical Fix)
 - **File:** `~/mace_wrapper/src/mace_wrapper.cpp`
-- **Change:** Added `setenv("PYTHONHOME", "/opt/mace_python", 1)` before interpreter init
+- **Change:** Added `setenv("PYTHONHOME", "$HOME/mace_python", 1)` before interpreter init
 - **Impact:** Enables isolated Python environment for pybind11
 - **Requirement:** Essential for library to work
 
