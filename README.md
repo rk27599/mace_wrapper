@@ -19,8 +19,8 @@ This project provides a C++ shared library that wraps MACE machine learning pote
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/rk27599/mace_cpp.git
-cd mace_cpp
+git clone https://github.com/rk27599/mace_wrapper.git
+cd mace_wrapper
 
 # 2. Check system requirements
 cd scripts
