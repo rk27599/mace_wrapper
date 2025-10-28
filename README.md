@@ -130,6 +130,7 @@ mace_wrapper/
 │   └── mace_calculator.py # Python calculator wrapper
 ├── test/
 │   └── test_mace.cpp     # Test application
+├── env.sh                # Environment setup helper
 ├── Makefile              # Build configuration
 └── README.md             # This file
 ```
@@ -143,6 +144,21 @@ mace_wrapper/
 - **`package_mace_wrapper.sh`** - Create deployment tarball
 
 See [scripts/README.md](scripts/README.md) for detailed documentation.
+
+## Environment Setup
+
+After installation, you need to set up the environment to use the isolated Python:
+
+```bash
+# Option 1: Source the environment helper (recommended)
+source env.sh
+
+# Option 2: Set manually
+export LD_LIBRARY_PATH=$HOME/mace_python/lib:$LD_LIBRARY_PATH
+export PATH=$HOME/mace_python/bin:$PATH
+```
+
+**Note:** The wrapper library has RPATH configured and works without setting `LD_LIBRARY_PATH`. However, to run Python directly or use pip, you need to set the library path as shown above.
 
 ## Building
 

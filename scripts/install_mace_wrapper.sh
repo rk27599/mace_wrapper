@@ -261,16 +261,21 @@ else
         exit 2
     fi
 
+    # Set LD_LIBRARY_PATH for Python verification and subsequent operations
+    export LD_LIBRARY_PATH="$PYTHON_INSTALL_DIR/lib:$LD_LIBRARY_PATH"
+
     INSTALLED_VERSION=$($PYTHON_INSTALL_DIR/bin/python3 --version | awk '{print $2}')
     print_success "Python $INSTALLED_VERSION installed to $PYTHON_INSTALL_DIR"
 
     # Clean up
     cd /tmp
     rm -rf "Python-${PYTHON_VERSION}" "$PYTHON_TAR"
+else
+    # Set LD_LIBRARY_PATH even when skipping Python build
+    export LD_LIBRARY_PATH="$PYTHON_INSTALL_DIR/lib:$LD_LIBRARY_PATH"
 fi
 
-# Set up environment
-export LD_LIBRARY_PATH="$PYTHON_INSTALL_DIR/lib:$LD_LIBRARY_PATH"
+# Environment already set above
 PYTHON_BIN="$PYTHON_INSTALL_DIR/bin/python3"
 PIP_BIN="$PYTHON_INSTALL_DIR/bin/pip3"
 
