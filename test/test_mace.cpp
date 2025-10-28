@@ -1,15 +1,41 @@
 #include "../include/mace_wrapper.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+// Check if running in WSL2
+int is_wsl2() {
+    FILE *fp = fopen("/proc/version", "r");
+    if (!fp) return 0;
+
+    char buffer[256];
+    int is_wsl = 0;
+    if (fgets(buffer, sizeof(buffer), fp) != NULL) {
+        if (strstr(buffer, "Microsoft") || strstr(buffer, "WSL")) {
+            is_wsl = 1;
+        }
+    }
+    fclose(fp);
+    return is_wsl;
+}
 
 int main() {
     printf("=== MACE Wrapper Test ===\n\n");
 
+    /* Detect environment */
+    int wsl2 = is_wsl2();
+    const char *device = wsl2 ? "cpu" : "cuda";
+    int enable_cueq = wsl2 ? 0 : 1;
+
     /* Initialize MACE */
     printf("Initializing MACE calculator...\n");
-    printf("Using 'small' model with GPU acceleration (CUDA + cuEquivariance)...\n");
-    printf("WSL2 patch applied - cuEquivariance enabled for 3-10x speedup!\n");
-    MACEHandle mace = mace_init(NULL, "small", "cuda", 1);
+    if (wsl2) {
+        printf("WSL2 detected - using CPU mode (cuEquivariance not compatible with WSL2)\n");
+    } else {
+        printf("Using 'small' model with GPU acceleration (CUDA + cuEquivariance)...\n");
+    }
+
+    MACEHandle mace = mace_init(NULL, "small", device, enable_cueq);
 
     if (!mace) {
         fprintf(stderr, "Failed to initialize MACE\n");

@@ -9,9 +9,10 @@ PYTHON_CONFIG = $(ISOLATED_PYTHON_HOME)/bin/python3-config
 CXX = g++
 CXXFLAGS = -std=c++17 -O3 -Wall -Wextra -fPIC -shared
 
-PYTHON_INCLUDES := $(shell $(PYTHON_CONFIG) --includes)
-PYTHON_LDFLAGS := $(shell $(PYTHON_CONFIG) --ldflags --embed 2>/dev/null || $(PYTHON_CONFIG) --ldflags)
-PYBIND11_INCLUDES := $(shell $(PYTHON_BIN) -m pybind11 --includes)
+# Set LD_LIBRARY_PATH for Python shell commands
+PYTHON_INCLUDES := $(shell LD_LIBRARY_PATH=$(ISOLATED_PYTHON_HOME)/lib:$$LD_LIBRARY_PATH $(PYTHON_CONFIG) --includes)
+PYTHON_LDFLAGS := $(shell LD_LIBRARY_PATH=$(ISOLATED_PYTHON_HOME)/lib:$$LD_LIBRARY_PATH $(PYTHON_CONFIG) --ldflags --embed 2>/dev/null || LD_LIBRARY_PATH=$(ISOLATED_PYTHON_HOME)/lib:$$LD_LIBRARY_PATH $(PYTHON_CONFIG) --ldflags)
+PYBIND11_INCLUDES := $(shell LD_LIBRARY_PATH=$(ISOLATED_PYTHON_HOME)/lib:$$LD_LIBRARY_PATH $(PYTHON_BIN) -m pybind11 --includes)
 
 ALL_INCLUDES = $(PYBIND11_INCLUDES) -Iinclude
 ISOLATED_LIB_DIR = $(ISOLATED_PYTHON_HOME)/lib
