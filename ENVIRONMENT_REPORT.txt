@@ -1,0 +1,101 @@
+=================================================================
+MACE Wrapper - Environment Detection Report
+=================================================================
+Generated: 2025-10-28
+Hostname: rohan
+Working Directory: /home/rkpatel/mace_test
+
+=================================================================
+SYSTEM INFORMATION
+=================================================================
+OS: Ubuntu 22.04.5 LTS
+Kernel: 6.6.87.2-microsoft-standard-WSL2 (WSL2 Environment)
+Architecture: x86_64
+Disk Space Available: 751 GB
+
+=================================================================
+GPU & CUDA
+=================================================================
+GPU Index: 0
+GPU Model: NVIDIA GeForce RTX 3070 Laptop GPU
+GPU Memory: 8192 MiB (8 GB)
+Compute Capability: 8.6
+Driver Version: 581.42
+CUDA Version: 12.9.86
+CUDA Path: /usr/local/cuda/bin/nvcc
+
+** NOTE: 8GB VRAM is less than document's 24GB (RTX A4000)
+** RECOMMENDATION: Use "small" MACE model to avoid OOM
+
+=================================================================
+BUILD TOOLS
+=================================================================
+GCC: gcc (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0 ✓
+G++: g++ (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0 ✓
+Make: GNU Make 4.3 ✓
+CMake: cmake version 3.31.6 ✓
+wget: Available ✓
+curl: Available ✓
+tar: Available ✓
+
+=================================================================
+PYTHON
+=================================================================
+System Python: Python 3.10.12
+System Python Path: /usr/bin/python3
+Site Packages: /usr/lib/python3.10/site-packages
+
+Target: Build isolated Python 3.11.10 at /opt/mace_python
+
+=================================================================
+BUILD DEPENDENCIES STATUS
+=================================================================
+✓ build-essential
+✓ libssl-dev
+✓ zlib1g-dev
+✗ libncurses5-dev (MISSING)
+✗ libncursesw5-dev (MISSING)
+✗ libreadline-dev (MISSING)
+✗ libsqlite3-dev (MISSING)
+✗ libgdbm-dev (MISSING)
+✗ libdb5.3-dev (MISSING)
+✗ libbz2-dev (MISSING)
+✓ libexpat1-dev
+✗ liblzma-dev (MISSING)
+✓ libffi-dev
+✗ uuid-dev (MISSING)
+
+ACTION REQUIRED: Install missing dependencies before Python build
+
+=================================================================
+NETWORK
+=================================================================
+Internet Connectivity: ✓ OK
+HTTPS to python.org: ✓ OK (200)
+
+=================================================================
+KEY DIFFERENCES FROM DOCUMENTATION
+=================================================================
+1. GPU: RTX 3070 Laptop (8GB) vs RTX A4000 (24GB)
+   → Will use "small" model instead of "medium"
+
+2. CUDA: 12.9 vs 12.1 documented
+   → May need cu121 wheels (backward compatible with 12.9)
+
+3. Environment: WSL2 vs native Linux
+   → Should work, but may have minor path differences
+
+4. System Python: 3.10.12 vs 2.7/3.8 mentioned in doc
+   → No conflict expected (using isolated 3.11)
+
+=================================================================
+INSTALLATION PLAN
+=================================================================
+Phase 1: Install missing build dependencies
+Phase 2: Build Python 3.11.10 at /opt/mace_python
+Phase 3: Install PyTorch + MACE + cuequivariance stack
+Phase 4: Build MACE wrapper library
+Phase 5: Test with "small" model (8GB VRAM safe)
+Phase 6: Create automation scripts
+
+=================================================================
